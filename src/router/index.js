@@ -22,6 +22,11 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/walking-demo',
+    name: 'walking-demo',
+    component: () => import('@/views/WalkingDashboardView.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/',
   },
