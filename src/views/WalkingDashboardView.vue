@@ -930,7 +930,7 @@ onBeforeUnmount(() => {
                   style="
                     padding-bottom: 8px;
                     border-bottom: 1px solid #e2e8f0;
-                    margin-bottom: 12px;
+                    margin-bottom: 16px;
                   "
                 >
                   <span
@@ -948,43 +948,66 @@ onBeforeUnmount(() => {
 
                 <div
                   style="
-                    background: #0f172a;
-                    border-radius: 10px;
-                    padding: 20px 24px;
-                    min-height: 80px;
+                    border: 2px solid #cbd5e1;
+                    border-radius: 14px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+                    background: #f1f5f9;
+                    max-width: 480px;
                   "
                 >
                   <div
-                    :style="announcementTitle
-                      ? {
+                    style="
+                      background: #1e293b;
+                      padding: 8px 16px;
+                      display: flex;
+                      align-items: center;
+                      gap: 8px;
+                    "
+                  >
+                    <i class="bi bi-display" style="color: #94a3b8; font-size: 0.8rem;" />
+                    <span style="color: #94a3b8; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.05em;">
+                      一體機
+                    </span>
+                  </div>
+
+                  <div
+                    style="
+                      background: #0f172a;
+                      padding: 24px 28px;
+                      min-height: 100px;
+                    "
+                  >
+                    <div
+                      :style="announcementTitle ? {
                         fontSize: '1.1rem',
                         fontWeight: '700',
                         color: '#f1f5f9',
-                        marginBottom: '6px',
-                      }
-                      : {
+                        marginBottom: '8px',
+                        lineHeight: '1.4',
+                      } : {
                         fontSize: '1.1rem',
                         fontWeight: '700',
-                        color: '#475569',
-                        marginBottom: '6px',
+                        color: '#334155',
+                        marginBottom: '8px',
+                        lineHeight: '1.4',
                       }"
-                  >
-                    {{ announcementTitle || '（標題將顯示於此）' }}
-                  </div>
-                  <div
-                    :style="announcementContent
-                      ? {
+                    >
+                      {{ announcementTitle || '（標題將顯示於此）' }}
+                    </div>
+                    <div
+                      :style="announcementContent ? {
                         fontSize: '0.9rem',
                         color: '#94a3b8',
                         lineHeight: '1.7',
-                      }
-                      : {
+                      } : {
                         fontSize: '0.9rem',
                         color: '#334155',
                         lineHeight: '1.7',
                       }"
-                  >
-                    {{ announcementContent || '（內容將顯示於此）' }}
+                    >
+                      {{ announcementContent || '（內容將顯示於此）' }}
+                    </div>
                   </div>
                 </div>
               </div>
