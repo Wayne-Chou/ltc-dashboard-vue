@@ -1,6 +1,5 @@
 import flatpickr from 'flatpickr'
 import { Japanese } from 'flatpickr/dist/l10n/ja.js'
-import { Korean } from 'flatpickr/dist/l10n/ko.js'
 import { MandarinTraditional } from 'flatpickr/dist/l10n/zh-tw.js'
 import { onBeforeUnmount, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -11,7 +10,6 @@ function getFlatpickrLocale(lang) {
   const l = (lang || 'zh').toLowerCase()
   if (l.includes('zh')) return MandarinTraditional
   if (l.includes('ja')) return Japanese
-  if (l.includes('ko')) return Korean
   return undefined
 }
 

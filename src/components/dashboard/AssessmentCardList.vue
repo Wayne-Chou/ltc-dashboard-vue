@@ -8,7 +8,7 @@ const PAGE_SIZE = 9
 
 const { t, locale } = useI18n()
 const {
-  assessments,
+  dateFilteredAssessments,
   selectedIndices,
   toggleSelection,
   selectAllAssessments,
@@ -17,21 +17,20 @@ const {
 
 const currentPage = ref(1)
 
-const sortedAssessments = computed(() =>
-  [...assessments.value].sort((a, b) => b.Date - a.Date),
+const sortedEntries = computed(() =>
+  dateFilteredAssessments.value
+    .map((assessment, index) => ({ assessment, index }))
+    .sort((a, b) => b.assessment.Date - a.assessment.Date),
 )
 
 const totalPages = computed(() =>
-  Math.max(1, Math.ceil(assessments.value.length / PAGE_SIZE)),
+  Math.max(1, Math.ceil(dateFilteredAssessments.value.length / PAGE_SIZE)),
 )
 
 const pageData = computed(() => {
   const page = Math.min(Math.max(currentPage.value, 1), totalPages.value)
   const start = (page - 1) * PAGE_SIZE
-  return sortedAssessments.value.slice(start, start + PAGE_SIZE).map((item) => ({
-    assessment: item,
-    index: assessments.value.indexOf(item),
-  }))
+  return sortedEntries.value.slice(start, start + PAGE_SIZE)
 })
 
 const paginationLabel = computed(() => {
@@ -39,10 +38,10 @@ const paginationLabel = computed(() => {
   return `${t('dashboard.page')} ${currentPage.value} ${t('dashboard.total')} ${totalPages.value}${pageUnit}`
 })
 
-const showPagination = computed(() => assessments.value.length > PAGE_SIZE)
+const showPagination = computed(() => dateFilteredAssessments.value.length > PAGE_SIZE)
 
 watch(
-  () => assessments.value.length,
+  () => dateFilteredAssessments.value.length,
   () => {
     currentPage.value = 1
   },
@@ -96,7 +95,7 @@ function goToNextPage() {
       </button>
     </div>
 
-    <div v-if="!assessments.length" class="col-12 text-center py-5 text-muted">
+    <div v-if="!dateFilteredAssessments.length" class="col-12 text-center py-5 text-muted">
       {{ t('dashboard.noRecord') }}
     </div>
 

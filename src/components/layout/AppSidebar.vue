@@ -9,6 +9,13 @@ defineProps({
     type: Array,
     default: () => [],
   },
+  showRegionSections: {
+    type: Boolean,
+    default: false,
+  },
+  error: {
+    default: null,
+  },
 })
 
 const emit = defineEmits(['select-region'])
@@ -25,6 +32,32 @@ const navItems = [
   { href: '#status', labelKey: 'dashboard.navStatus' },
   { href: '#location', labelKey: 'dashboard.navLocation' },
 ]
+
+const SECTION_SCROLL_OFFSET = 60
+
+function scrollToSection(href) {
+  const id = href.startsWith('#') ? href.slice(1) : href
+  if (!id) return
+
+  const el = document.getElementById(id)
+  if (!el) return
+
+  const scrollContainer = document.querySelector('.main-content')
+  if (scrollContainer) {
+    const containerTop = scrollContainer.getBoundingClientRect().top
+    const elementTop = el.getBoundingClientRect().top
+    const nextScrollTop =
+      scrollContainer.scrollTop + (elementTop - containerTop) - SECTION_SCROLL_OFFSET
+
+    scrollContainer.scrollTo({
+      top: Math.max(0, nextScrollTop),
+      behavior: 'smooth',
+    })
+    return
+  }
+
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 
 function toggleSidebar() {
   isCollapsed.value = !isCollapsed.value
@@ -55,7 +88,7 @@ function toggleSidebar() {
       <AppHeader :sites="sites" @select-region="(code) => emit('select-region', code)" />
 
       <nav
-        v-if="compare.showHideOnAllNav"
+        v-if="compare.showHideOnAllNav && showRegionSections && !error"
         class="navbar navbar-expand-lg bg-white shadow-sm sticky-top border-bottom hide-on-all"
       >
         <div class="container-fluid">
@@ -74,7 +107,11 @@ function toggleSidebar() {
           <div id="mainNavbar" class="collapse navbar-collapse">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li v-for="item in navItems" :key="item.href" class="nav-item">
-                <a class="nav-link fw-bold text-dark" :href="item.href">
+                <a
+                  class="nav-link fw-bold text-dark"
+                  :href="item.href"
+                  @click.prevent="scrollToSection(item.href)"
+                >
                   {{ t(item.labelKey) }}
                 </a>
               </li>

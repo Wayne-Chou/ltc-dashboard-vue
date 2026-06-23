@@ -8,6 +8,13 @@ defineProps({
     type: Array,
     default: () => [],
   },
+  showRegionSections: {
+    type: Boolean,
+    default: false,
+  },
+  error: {
+    default: null,
+  },
 })
 
 defineEmits(['select-region'])
@@ -16,7 +23,12 @@ defineEmits(['select-region'])
 <template>
   <div class="custom-container content bg-white">
     <div class="page-wrapper">
-      <AppSidebar :sites="sites" @select-region="$emit('select-region', $event)" />
+      <AppSidebar
+        :sites="sites"
+        :show-region-sections="showRegionSections"
+        :error="error"
+        @select-region="$emit('select-region', $event)"
+      />
 
       <div class="main-content">
         <slot />

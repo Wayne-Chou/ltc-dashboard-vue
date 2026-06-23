@@ -1,288 +1,322 @@
 <script setup>
-import '@/styles/dashboard.css'
-import 'bootstrap-icons/font/bootstrap-icons.css'
-import { downloadChartAsPng } from '@/utils/downloadChart'
-import Chart from 'chart.js/auto'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import "@/styles/dashboard.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
+import { downloadChartAsPng } from "@/utils/downloadChart";
+import Chart from "chart.js/auto";
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from "vue";
+import { useRoute, useRouter } from "vue-router";
 
-const systemTitle = 'LTC 步行能力儀表板'
-const systemSubtitle = '長照據點步行監測管理系統'
+const route = useRoute();
+const router = useRouter();
 
 const regionOptions = [
-  { value: '0', label: '總表' },
-  { value: '1', label: '台北中心' },
-  { value: '2', label: '新北據點' },
-]
+  { value: "0", label: "總表" },
+  { value: "1", label: "台北中心" },
+  { value: "2", label: "新北據點" },
+];
 
-const selectedRegion = ref('0')
-const isCollapsed = ref(false)
-const logoSrc = `${import.meta.env.BASE_URL}img/logo.png`
+const selectedRegion = computed(() => {
+  const region = route.query.region;
+  if (!region || region === "0") return "0";
+  return String(region);
+});
+const isCollapsed = ref(false);
+const isKioskView = ref(false);
+const logoSrc = `${import.meta.env.BASE_URL}img/logo.png`;
 
 const regionLabel = computed(
-  () => regionOptions.find((item) => item.value === selectedRegion.value)?.label ?? '總表',
-)
+  () =>
+    regionOptions.find((item) => item.value === selectedRegion.value)?.label ??
+    "總表"
+);
+
+const showRegionSections = computed(() => selectedRegion.value !== "0");
+
+const summaryColClass = computed(() =>
+  showRegionSections.value ? "col-md-6" : "col-md-4"
+);
 
 const navItems = [
-  { href: '#summary', label: '檢測統計摘要' },
-  { href: '#history', label: '歷次檢測' },
-  { href: '#trend', label: '群體變化趨勢' },
-  { href: '#status', label: '參與者狀態' },
-  { href: '#kiosk', label: '一體機公告' },
-]
+  { href: "#summary", label: "檢測統計摘要" },
+
+  { href: "#trend", label: "群體變化趨勢" },
+  { href: "#status", label: "參與者狀態" },
+  { href: "#location", label: "檢測據點分布" },
+];
+
+const SECTION_SCROLL_OFFSET = 60;
+
+function scrollToSection(href) {
+  const id = href.startsWith("#") ? href.slice(1) : href;
+  if (!id) return;
+
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  const scrollContainer = document.querySelector(".main-content");
+  if (scrollContainer) {
+    const containerTop = scrollContainer.getBoundingClientRect().top;
+    const elementTop = el.getBoundingClientRect().top;
+    const nextScrollTop =
+      scrollContainer.scrollTop +
+      (elementTop - containerTop) -
+      SECTION_SCROLL_OFFSET;
+
+    scrollContainer.scrollTo({
+      top: Math.max(0, nextScrollTop),
+      behavior: "smooth",
+    });
+    return;
+  }
+
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 const summaryStats = {
   totalPeople: 128,
   totalVisits: 356,
-}
+  locationCount: 3,
+  startDateText: "起始：2024/10/15",
+  latestDateText: "最新：2025/04/02",
+  locationList: "台北中心、新北據點、桃園據點",
+};
+
+const riskStatsData = {
+  alertGaitSpeed: 12,
+  alertChairSecond: 8,
+  alertA: 1,
+  alertB: 1,
+  alertC: 1,
+  gaitSpeedDeclineCount: 12,
+  chairSecondIncreaseCount: 8,
+  progressGaitSpeed: "35%",
+  progressChair: "24%",
+  countA: 1,
+  countB: 1,
+  countC: 1,
+  countD: 1,
+  progressA: "25%",
+  progressB: "25%",
+  progressC: "25%",
+  progressD: "25%",
+};
 
 const assessmentRecords = [
-  { date: '2025/01/12', gaitSpeed: 92, count: 28 },
-  { date: '2025/02/08', gaitSpeed: 88, count: 31 },
-  { date: '2025/03/15', gaitSpeed: 95, count: 24 },
-  { date: '2025/04/02', gaitSpeed: 90, count: 27 },
-]
+  { date: "2025/01/12", gaitSpeed: 92, count: 28 },
+  { date: "2025/02/08", gaitSpeed: 88, count: 31 },
+  { date: "2025/03/15", gaitSpeed: 95, count: 24 },
+  { date: "2025/04/02", gaitSpeed: 90, count: 27 },
+];
 
-const selectedAssessmentIndices = ref([0, 1, 2, 3])
+const selectedAssessmentIndices = ref([0, 1, 2, 3]);
 
 const participants = [
   {
-    Name: '王○明',
+    Name: "王○明",
     Age: 72,
     Gender: 1,
     Risk: 42,
-    Level: 'B',
-    Date: '2025-04-02',
+    Level: "B",
+    Date: "2025-04-02",
     Number: 1,
   },
   {
-    Name: '李○華',
+    Name: "李○華",
     Age: 68,
     Gender: 0,
     Risk: 18,
-    Level: 'C',
-    Date: '2025-04-02',
+    Level: "C",
+    Date: "2025-04-02",
     Number: 2,
   },
   {
-    Name: '張○強',
+    Name: "張○強",
     Age: 75,
     Gender: 1,
     Risk: 55,
-    Level: 'A',
-    Date: '2025-03-15',
+    Level: "A",
+    Date: "2025-03-15",
     Number: 3,
   },
   {
-    Name: '陳○美',
+    Name: "陳○美",
     Age: 70,
     Gender: 0,
     Risk: 8,
-    Level: 'D',
-    Date: '2025-03-15',
+    Level: "D",
+    Date: "2025-03-15",
     Number: 4,
   },
-]
+];
 
-const sortMode = ref('risk')
-const riskFilter = ref('all')
-const levelFilter = ref('all')
+const riskFilter = ref("all");
 
 const riskFilters = [
-  { value: 'all', label: '全部', btnClass: 'btn-secondary' },
-  { value: 'high', label: '高危險', btnClass: 'btn-danger risk-high-danger' },
-  { value: 'slightlyHigh', label: '高風險', btnClass: 'btn-warning risk-high' },
-  { value: 'medium', label: '中風險', btnClass: 'btn-warning risk-medium' },
-  { value: 'slightlyLow', label: '偏低', btnClass: 'btn-success risk-slightly-low' },
-  { value: 'low', label: '低風險', btnClass: 'btn-success risk-low' },
-]
-
-const levelFilters = [
-  { value: 'all', label: '全部', btnClass: 'btn-secondary' },
-  { value: 'A', label: 'A 級', btnClass: 'btn-danger risk-high-danger' },
-  { value: 'B', label: 'B 級', btnClass: 'btn-warning risk-high' },
-  { value: 'C', label: 'C 級', btnClass: 'btn-warning risk-medium' },
-  { value: 'D', label: 'D 級', btnClass: 'btn-success risk-low' },
-]
+  { value: "all", label: "全部", btnClass: "btn-secondary" },
+  { value: "high", label: "高危險", btnClass: "btn-danger risk-high-danger" },
+  { value: "slightlyHigh", label: "高風險", btnClass: "btn-warning risk-high" },
+  { value: "medium", label: "中風險", btnClass: "btn-warning risk-medium" },
+  {
+    value: "slightlyLow",
+    label: "偏低",
+    btnClass: "btn-success risk-slightly-low",
+  },
+  { value: "low", label: "低風險", btnClass: "btn-success risk-low" },
+];
 
 const riskStyles = {
-  high: { face: '#ff5757', border: '#dc3545' },
-  slightlyHigh: { face: '#ffa203', border: '#fd7e14' },
-  medium: { face: '#ffd039', border: '#ffc107' },
-  slightlyLow: { face: '#8cff00', border: '#28a745' },
-  low: { face: '#4ffa00', border: '#198754' },
-}
-
-const levelStyles = {
-  A: { face: '#FEE2E2', border: '#dc3545', label: 'A 級' },
-  B: { face: '#FEF3C7', border: '#fd7e14', label: 'B 級' },
-  C: { face: '#DBEAFE', border: '#0d6efd', label: 'C 級' },
-  D: { face: '#DCFCE7', border: '#28a745', label: 'D 級' },
-}
+  high: { face: "#ff5757", border: "#dc3545" },
+  slightlyHigh: { face: "#ffa203", border: "#fd7e14" },
+  medium: { face: "#ffd039", border: "#ffc107" },
+  slightlyLow: { face: "#8cff00", border: "#28a745" },
+  low: { face: "#4ffa00", border: "#198754" },
+};
 
 const riskLabelMap = {
-  high: '高風險',
-  slightlyHigh: '偏高',
-  medium: '中風險',
-  slightlyLow: '偏低',
-  low: '低風險',
-}
+  high: "高風險",
+  slightlyHigh: "偏高",
+  medium: "中風險",
+  slightlyLow: "偏低",
+  low: "低風險",
+};
 
 const riskFilterCounts = computed(() => {
-  const counts = { all: 0, high: 0, slightlyHigh: 0, medium: 0, slightlyLow: 0, low: 0 }
+  const counts = {
+    all: 0,
+    high: 0,
+    slightlyHigh: 0,
+    medium: 0,
+    slightlyLow: 0,
+    low: 0,
+  };
   participants.forEach((person) => {
-    counts.all += 1
-    const category = getRiskCategory(person.Risk)
-    counts[category] += 1
-  })
-  return counts
-})
-
-const levelFilterCounts = computed(() => {
-  const counts = { all: 0, A: 0, B: 0, C: 0, D: 0 }
-  participants.forEach((person) => {
-    counts.all += 1
-    if (counts[person.Level] !== undefined) counts[person.Level] += 1
-  })
-  return counts
-})
+    counts.all += 1;
+    const category = getRiskCategory(person.Risk);
+    counts[category] += 1;
+  });
+  return counts;
+});
 
 const filteredParticipants = computed(() => {
-  if (sortMode.value === 'risk') {
-    if (riskFilter.value === 'all') return participants
-    return participants.filter((person) => getRiskCategory(person.Risk) === riskFilter.value)
-  }
-  if (levelFilter.value === 'all') return participants
-  return participants.filter((person) => person.Level === levelFilter.value)
-})
+  if (riskFilter.value === "all") return participants;
+  return participants.filter(
+    (person) => getRiskCategory(person.Risk) === riskFilter.value
+  );
+});
 
-const overviewText = computed(() => `共 ${filteredParticipants.value.length} 位參與者`)
+const overviewText = computed(
+  () => `共 ${filteredParticipants.value.length} 位參與者`
+);
 
-const activeFilterCounts = computed(() =>
-  sortMode.value === 'risk' ? riskFilterCounts.value : levelFilterCounts.value,
-)
+const isAllMode = computed(() => riskFilter.value === "all");
 
-const gaitChartRef = ref(null)
-const riskChartRef = ref(null)
-let gaitChartInstance = null
-let riskChartInstance = null
+const gaitChartRef = ref(null);
+const riskChartRef = ref(null);
+let gaitChartInstance = null;
+let riskChartInstance = null;
 
-const announcementTitle = ref('')
-const announcementContent = ref('')
+const announcementTitle = ref("");
+const announcementContent = ref("");
 
 function isAssessmentSelected(index) {
-  return selectedAssessmentIndices.value.includes(index)
+  return selectedAssessmentIndices.value.includes(index);
 }
 
 function toggleAssessmentSelection(index) {
   if (isAssessmentSelected(index)) {
-    selectedAssessmentIndices.value = selectedAssessmentIndices.value.filter((item) => item !== index)
+    selectedAssessmentIndices.value = selectedAssessmentIndices.value.filter(
+      (item) => item !== index
+    );
   } else {
-    selectedAssessmentIndices.value = [...selectedAssessmentIndices.value, index]
+    selectedAssessmentIndices.value = [
+      ...selectedAssessmentIndices.value,
+      index,
+    ];
   }
 }
 
 function selectAllAssessments() {
-  selectedAssessmentIndices.value = assessmentRecords.map((_, index) => index)
+  selectedAssessmentIndices.value = assessmentRecords.map((_, index) => index);
 }
 
 function unselectAllAssessments() {
-  selectedAssessmentIndices.value = []
+  selectedAssessmentIndices.value = [];
 }
 
 function getRiskCategory(risk) {
-  if (risk > 50) return 'high'
-  if (risk > 30) return 'slightlyHigh'
-  if (risk > 17.5) return 'medium'
-  if (risk > 5) return 'slightlyLow'
-  return 'low'
+  if (risk > 50) return "high";
+  if (risk > 30) return "slightlyHigh";
+  if (risk > 17.5) return "medium";
+  if (risk > 5) return "slightlyLow";
+  return "low";
 }
 
-const isAllMode = computed(() =>
-  sortMode.value === 'risk' ? riskFilter.value === 'all' : levelFilter.value === 'all',
-)
-
 function getCardBorderColor(person) {
-  if (isAllMode.value) return '#000'
-  if (sortMode.value === 'risk') {
-    return riskStyles[getRiskCategory(person.Risk)]?.border || '#6c757d'
-  }
-  return levelStyles[person.Level]?.border || '#6c757d'
+  if (isAllMode.value) return "#000";
+  return riskStyles[getRiskCategory(person.Risk)]?.border || "#6c757d";
 }
 
 function getBadgeLabel(person) {
-  if (sortMode.value === 'risk') {
-    return riskLabelMap[getRiskCategory(person.Risk)]
-  }
-  return levelStyles[person.Level]?.label || person.Level
+  return riskLabelMap[getRiskCategory(person.Risk)];
 }
 
 function getMouthPath(person) {
-  if (sortMode.value === 'risk') {
-    const category = getRiskCategory(person.Risk)
-    if (category === 'low') return 'M40 65 Q50 75 60 65'
-    if (category === 'slightlyLow') return 'M40 65 L60 65'
-    return 'M40 65 Q50 55 60 65'
-  }
-  if (person.Level === 'D') return 'M40 65 Q50 75 60 65'
-  if (person.Level === 'C') return 'M40 65 L60 65'
-  return 'M40 65 Q50 55 60 65'
+  const category = getRiskCategory(person.Risk);
+  if (category === "low") return "M40 65 Q50 75 60 65";
+  if (category === "slightlyLow") return "M40 65 L60 65";
+  return "M40 65 Q50 55 60 65";
 }
 
 function getFaceFill(person) {
-  if (sortMode.value === 'risk') {
-    return riskStyles[getRiskCategory(person.Risk)]?.face || '#ffd039'
-  }
-  return levelStyles[person.Level]?.face || '#eee'
-}
-
-function setSortMode(mode) {
-  sortMode.value = mode
+  return riskStyles[getRiskCategory(person.Risk)]?.face || "#ffd039";
 }
 
 function setRiskFilter(value) {
-  riskFilter.value = value
-}
-
-function setLevelFilter(value) {
-  levelFilter.value = value
-}
-
-function setFilter(value) {
-  if (sortMode.value === 'risk') {
-    riskFilter.value = value
-  } else {
-    levelFilter.value = value
-  }
+  riskFilter.value = value;
 }
 
 function filterButtonLabel(item) {
-  return `${item.label} (${activeFilterCounts.value[item.value] ?? 0})`
+  return `${item.label} (${riskFilterCounts.value[item.value] ?? 0})`;
 }
 
 function formatPersonDate(dateStr) {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}/${month}/${day}`
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}/${month}/${day}`;
 }
 
 function genderText(gender) {
-  return gender === 0 ? '女' : '男'
+  return gender === 0 ? "女" : "男";
 }
 
 function buildGaitChartConfig() {
   return {
-    type: 'line',
+    type: "line",
     data: {
-      labels: ['2024/10', '2024/11', '2024/12', '2025/01', '2025/02', '2025/03'],
+      labels: [
+        "2024/10",
+        "2024/11",
+        "2024/12",
+        "2025/01",
+        "2025/02",
+        "2025/03",
+      ],
       datasets: [
         {
-          label: '平均步行速度 (cm/s)',
+          label: "平均步行速度 (cm/s)",
           data: [82, 85, 88, 90, 87, 93],
-          borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          borderColor: "#3b82f6",
+          backgroundColor: "rgba(59, 130, 246, 0.1)",
           tension: 0.3,
           fill: true,
         },
@@ -294,20 +328,27 @@ function buildGaitChartConfig() {
       plugins: { legend: { display: true } },
       scales: { y: { beginAtZero: false } },
     },
-  }
+  };
 }
 
 function buildRiskChartConfig() {
   return {
-    type: 'line',
+    type: "line",
     data: {
-      labels: ['2024/10', '2024/11', '2024/12', '2025/01', '2025/02', '2025/03'],
+      labels: [
+        "2024/10",
+        "2024/11",
+        "2024/12",
+        "2025/01",
+        "2025/02",
+        "2025/03",
+      ],
       datasets: [
         {
-          label: '平均 AI 跌倒風險機率 (%)',
+          label: "平均 AI 跌倒風險機率 (%)",
           data: [28.5, 26.2, 24.8, 22.1, 23.5, 21.0],
-          borderColor: '#ef4444',
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          borderColor: "#ef4444",
+          backgroundColor: "rgba(239, 68, 68, 0.1)",
           tension: 0.3,
           fill: true,
         },
@@ -319,72 +360,109 @@ function buildRiskChartConfig() {
       plugins: { legend: { display: true } },
       scales: { y: { beginAtZero: true, max: 100 } },
     },
-  }
+  };
 }
 
 function initCharts() {
   if (gaitChartRef.value) {
-    gaitChartInstance?.destroy()
-    gaitChartInstance = new Chart(gaitChartRef.value, buildGaitChartConfig())
+    gaitChartInstance?.destroy();
+    gaitChartInstance = new Chart(gaitChartRef.value, buildGaitChartConfig());
   }
   if (riskChartRef.value) {
-    riskChartInstance?.destroy()
-    riskChartInstance = new Chart(riskChartRef.value, buildRiskChartConfig())
+    riskChartInstance?.destroy();
+    riskChartInstance = new Chart(riskChartRef.value, buildRiskChartConfig());
   }
 }
 
 function onDownloadGaitChart() {
-  downloadChartAsPng(gaitChartRef.value, 'walkingGaitChart')
+  downloadChartAsPng(gaitChartRef.value, "walkingGaitChart");
 }
 
 function onDownloadRiskChart() {
-  downloadChartAsPng(riskChartRef.value, 'walkingRiskChart')
+  downloadChartAsPng(riskChartRef.value, "walkingRiskChart");
 }
 
 function onSaveAnnouncement() {
-  window.alert('Demo 頁面：儲存功能未串接')
+  window.alert("Demo 頁面：儲存功能未串接");
 }
 
 function onSelectRegion(value) {
-  selectedRegion.value = value
+  router.push({
+    query: {
+      ...route.query,
+      region: String(value),
+    },
+  });
 }
 
 function toggleSidebar() {
-  isCollapsed.value = !isCollapsed.value
+  isCollapsed.value = !isCollapsed.value;
+}
+
+function toggleKioskView() {
+  isKioskView.value = !isKioskView.value;
+}
+
+function onSelectPerson(person) {
+  if (!person?.Number) return;
+  router.push({
+    name: "walking-person-detail",
+    params: { id: String(person.Number) },
+  });
 }
 
 function onLogout() {
-  window.alert('Demo 頁面：登出功能未串接')
+  window.alert("Demo 頁面：登出功能未串接");
 }
 
 onMounted(() => {
-  initCharts()
-})
+  if (!isKioskView.value && showRegionSections.value) {
+    initCharts();
+  }
+});
+
+watch(
+  [showRegionSections, isKioskView],
+  async ([regionSections, kioskView]) => {
+    if (!kioskView && regionSections) {
+      await nextTick();
+      initCharts();
+    }
+  }
+);
 
 onBeforeUnmount(() => {
-  gaitChartInstance?.destroy()
-  riskChartInstance?.destroy()
-})
+  gaitChartInstance?.destroy();
+  riskChartInstance?.destroy();
+});
 </script>
 
 <template>
   <div class="custom-container content bg-white">
     <div class="page-wrapper">
       <aside id="mySidebar" class="sidebar" :class="{ collapsed: isCollapsed }">
-        <button id="sidebarToggle" type="button" class="btn btn-primary shadow-sm" @click="toggleSidebar">
-          <i class="bi bi-chevron-left" :class="{ 'rotate-180': isCollapsed }" />
+        <button
+          id="sidebarToggle"
+          type="button"
+          class="btn btn-primary shadow-sm"
+          @click="toggleSidebar"
+        >
+          <i
+            class="bi bi-chevron-left"
+            :class="{ 'rotate-180': isCollapsed }"
+          />
         </button>
 
         <div class="sidebar-inner-content">
           <div class="text-center mt-3 mb-2">
-            <img style="max-width:150px; height:auto" :src="logoSrc" alt="logo" />
+            <img
+              style="max-width: 150px; height: auto"
+              :src="logoSrc"
+              alt="logo"
+            />
           </div>
 
           <header class="custom-header mt-4 mb-4">
-            <div>
-              <h1 class="custom-title h3 mb-1">{{ systemTitle }}</h1>
-              <p class="custom-subtitle">{{ systemSubtitle }}</p>
-            </div>
             <div
               class="dashboard-header-toolbar mt-3"
               style="display: flex; flex-direction: column; gap: 8px"
@@ -400,21 +478,40 @@ onBeforeUnmount(() => {
                 </button>
                 <ul class="dropdown-menu w-100">
                   <li v-for="option in regionOptions" :key="option.value">
-                    <a class="dropdown-item" href="#" @click.prevent="onSelectRegion(option.value)">
+                    <a
+                      class="dropdown-item"
+                      href="#"
+                      @click.prevent="onSelectRegion(option.value)"
+                    >
                       {{ option.label }}
                     </a>
                   </li>
                 </ul>
               </div>
               <div class="header-actions w-100">
-                <button class="btn btn-primary w-100" type="button" @click="onLogout">
+                <button
+                  class="btn btn-primary w-100"
+                  type="button"
+                  @click="toggleKioskView"
+                >
+                  {{ isKioskView ? "切回一般模式" : "一體機公告" }}
+                </button>
+              </div>
+              <div class="header-actions w-100">
+                <button
+                  class="btn btn-primary w-100"
+                  type="button"
+                  @click="onLogout"
+                >
                   登出
                 </button>
               </div>
             </div>
           </header>
 
-          <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top border-bottom hide-on-all">
+          <nav
+            class="navbar navbar-expand-lg bg-white shadow-sm sticky-top border-bottom hide-on-all"
+          >
             <div class="container-fluid">
               <button
                 class="navbar-toggler"
@@ -426,8 +523,18 @@ onBeforeUnmount(() => {
               </button>
               <div id="walkingNavbar" class="collapse navbar-collapse">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                  <li v-for="item in navItems" :key="item.href" class="nav-item">
-                    <a class="nav-link fw-bold text-dark" :href="item.href">{{ item.label }}</a>
+                  <li
+                    v-for="item in navItems"
+                    :key="item.href"
+                    class="nav-item"
+                  >
+                    <a
+                      class="nav-link fw-bold text-dark"
+                      :href="item.href"
+                      @click.prevent="scrollToSection(item.href)"
+                    >
+                      {{ item.label }}
+                    </a>
                   </li>
                 </ul>
               </div>
@@ -438,7 +545,11 @@ onBeforeUnmount(() => {
 
       <div class="main-content">
         <!-- ① 檢測統計摘要 -->
-        <section id="summary" class="mt-4 mb-4 bg-white p-4 rounded shadow compare-hide">
+        <section
+          v-if="!isKioskView"
+          id="summary"
+          class="mt-4 mb-4 bg-white p-4 rounded shadow compare-hide"
+        >
           <h5 class="fw-bold text-dark mb-3 d-flex align-items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -459,32 +570,72 @@ onBeforeUnmount(() => {
             <span>檢測統計摘要</span>
           </h5>
 
+          <div v-if="showRegionSections" class="my-3 hide-on-all">
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="請選擇日期範圍"
+                readonly
+              />
+              <button class="btn btn-outline-secondary" type="button">
+                清除
+              </button>
+            </div>
+          </div>
+
           <div class="row g-4">
-            <div class="col-md-6">
+            <div :class="summaryColClass">
               <div class="stat-card stat-blue h-100">
                 <h6 class="fw-semibold mb-2">受測人數</h6>
                 <div class="d-flex align-items-end">
-                  <span class="display-6 fw-bold text-blue">{{ summaryStats.totalPeople }}</span>
+                  <span class="display-6 fw-bold text-blue">{{
+                    summaryStats.totalPeople
+                  }}</span>
                   <span class="ms-2 mb-1 text-blue">人</span>
                 </div>
-                <p class="small mt-2 invisible">placeholder</p>
+                <p class="small mt-2 text-blue">
+                  {{ summaryStats.startDateText }}
+                </p>
               </div>
             </div>
-            <div class="col-md-6">
+            <div :class="summaryColClass">
               <div class="stat-card stat-green h-100">
                 <h6 class="fw-semibold mb-2">檢測次數</h6>
                 <div class="d-flex align-items-end">
-                  <span class="display-6 fw-bold text-green">{{ summaryStats.totalVisits }}</span>
+                  <span class="display-6 fw-bold text-green">{{
+                    summaryStats.totalVisits
+                  }}</span>
                   <span class="ms-2 mb-1 text-green">次</span>
                 </div>
-                <p class="small mt-2 invisible">placeholder</p>
+                <p class="small mt-2 text-green">
+                  {{ summaryStats.latestDateText }}
+                </p>
+              </div>
+            </div>
+            <div v-if="!showRegionSections" class="col-md-4">
+              <div class="stat-card stat-purple h-100">
+                <h6 class="fw-semibold mb-2">據點數</h6>
+                <div class="d-flex align-items-end">
+                  <span class="display-6 fw-bold text-purple">{{
+                    summaryStats.locationCount
+                  }}</span>
+                  <span class="ms-2 mb-1 text-purple">處</span>
+                </div>
+                <p class="small mt-2 text-purple">
+                  {{ summaryStats.locationList }}
+                </p>
               </div>
             </div>
           </div>
         </section>
 
         <!-- ② 歷次檢測 -->
-        <section id="history" class="mt-4 hide-on-all">
+        <section
+          v-if="!isKioskView && showRegionSections"
+          id="history"
+          class="mt-4 hide-on-all"
+        >
           <h6 class="fw-semibold text-secondary mb-3">歷次檢測</h6>
 
           <div class="d-flex gap-2 mb-3">
@@ -513,27 +664,41 @@ onBeforeUnmount(() => {
               class="col-12 col-md-6 col-lg-4 mb-3"
             >
               <div
-                :class="isAssessmentSelected(index)
-                  ? 'card h-100 selectable-card border-primary shadow bg-light'
-                  : 'card h-100 selectable-card border-light shadow-sm'"
+                :class="
+                  isAssessmentSelected(index)
+                    ? 'card h-100 selectable-card border-primary shadow bg-light'
+                    : 'card h-100 selectable-card border-light shadow-sm'
+                "
                 role="button"
                 tabindex="0"
-                style="cursor:pointer; border-width:2px; transition:all 0.2s ease"
+                style="
+                  cursor: pointer;
+                  border-width: 2px;
+                  transition: all 0.2s ease;
+                "
                 @click="toggleAssessmentSelection(index)"
                 @keydown.enter.prevent="toggleAssessmentSelection(index)"
                 @keydown.space.prevent="toggleAssessmentSelection(index)"
               >
                 <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-3"
+                  >
                     <div class="d-flex align-items-center">
                       <div
                         class="status-indicator me-2"
-                        :class="isAssessmentSelected(index) ? 'bg-primary' : 'bg-secondary opacity-25'"
-                        style="width:12px; height:12px; border-radius:50%"
+                        :class="
+                          isAssessmentSelected(index)
+                            ? 'bg-primary'
+                            : 'bg-secondary opacity-25'
+                        "
+                        style="width: 12px; height: 12px; border-radius: 50%"
                       />
                       <span class="fw-bold text-dark">{{ record.date }}</span>
                     </div>
-                    <span class="badge bg-white text-primary border border-primary-subtle">
+                    <span
+                      class="badge bg-white text-primary border border-primary-subtle"
+                    >
                       {{ record.count }} 人
                     </span>
                   </div>
@@ -541,7 +706,9 @@ onBeforeUnmount(() => {
                     <div class="col-12">
                       <div class="p-2 rounded bg-white border text-center">
                         <small class="text-muted d-block">平均步行速度</small>
-                        <span class="fw-bold text-dark d-block">{{ record.gaitSpeed }} cm/s</span>
+                        <span class="fw-bold text-dark d-block"
+                          >{{ record.gaitSpeed }} cm/s</span
+                        >
                       </div>
                     </div>
                   </div>
@@ -551,8 +718,14 @@ onBeforeUnmount(() => {
           </div>
         </section>
 
+       
+
         <!-- ③ 群體變化趨勢 -->
-        <section id="trend" class="mb-8 hide-on-all compare-hide">
+        <section
+          v-if="!isKioskView && showRegionSections"
+          id="trend"
+          class="mb-8 hide-on-all compare-hide"
+        >
           <h5 class="fw-bold mb-3 d-flex align-items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -578,7 +751,9 @@ onBeforeUnmount(() => {
             <div class="col-12 col-md-6">
               <div class="card shadow-sm h-100">
                 <div class="card-body">
-                  <div class="d-flex align-items-center justify-content-between">
+                  <div
+                    class="d-flex align-items-center justify-content-between"
+                  >
                     <h5 class="fw-semibold text-dark mb-0">平均步行速度趨勢</h5>
                     <button
                       type="button"
@@ -603,8 +778,12 @@ onBeforeUnmount(() => {
             <div class="col-12 col-md-6">
               <div class="card shadow-sm h-100">
                 <div class="card-body">
-                  <div class="d-flex align-items-center justify-content-between">
-                    <h5 class="fw-semibold text-dark mb-0">平均 AI 跌倒風險機率</h5>
+                  <div
+                    class="d-flex align-items-center justify-content-between"
+                  >
+                    <h5 class="fw-semibold text-dark mb-0">
+                      平均 AI 跌倒風險機率
+                    </h5>
                     <button
                       type="button"
                       class="btn btn-sm btn-outline-primary download-chart"
@@ -614,7 +793,12 @@ onBeforeUnmount(() => {
                       <span>下載圖表</span>
                     </button>
                   </div>
-                  <div class="text-muted small mb-2 opacity-0" aria-hidden="true">&nbsp;</div>
+                  <div
+                    class="text-muted small mb-2 opacity-0"
+                    aria-hidden="true"
+                  >
+                    &nbsp;
+                  </div>
                   <div
                     class="chart-container position-relative"
                     style="position: relative; height: 300px; width: 100%"
@@ -628,7 +812,11 @@ onBeforeUnmount(() => {
         </section>
 
         <!-- ④ 參與者狀態 -->
-        <section id="status" class="mb-4 hide-on-all compare-hide">
+        <section
+          v-if="!isKioskView && showRegionSections"
+          id="status"
+          class="mb-4 mt-3 hide-on-all compare-hide"
+        >
           <h5 class="fw-bold text-dark mb-3 d-flex align-items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -649,45 +837,34 @@ onBeforeUnmount(() => {
             <span>參與者狀態</span>
           </h5>
 
-          <div class="d-flex gap-2 mb-3 sortModeSwitch">
-            <button
-              type="button"
-              class="btn btn-outline-primary"
-              :class="{ active: sortMode === 'risk' }"
-              @click="setSortMode('risk')"
-            >
-              依風險排序
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline-primary"
-              :class="{ active: sortMode === 'level' }"
-              @click="setSortMode('level')"
-            >
-              依 VIVIFRAIL 等級排序
-            </button>
-          </div>
-
-          <div v-show="sortMode === 'risk'" class="risk" id="riskContainer">
+          <div class="risk" id="riskContainer">
             <div class="d-none d-md-flex gap-2 mb-3 filterBtnsDesktop">
               <button
                 v-for="item in riskFilters"
                 :key="item.value"
                 type="button"
                 class="btn flex-fill"
-                :class="[item.btnClass, { active: riskFilter === item.value }, { 'text-white': item.value !== 'all' }]"
-                @click="setFilter(item.value)"
+                :class="[
+                  item.btnClass,
+                  { active: riskFilter === item.value },
+                  { 'text-white': item.value !== 'all' },
+                ]"
+                @click="setRiskFilter(item.value)"
               >
                 {{ filterButtonLabel(item) }}
               </button>
             </div>
 
             <div v-if="!filteredParticipants.length" class="col-12">
-              <div class="alert alert-secondary text-center">沒有符合條件的參與者</div>
+              <div class="alert alert-secondary text-center">
+                沒有符合條件的參與者
+              </div>
             </div>
             <template v-else>
               <div class="col-12 mb-2">
-                <div class="alert alert-info small py-2 px-3 mb-2">{{ overviewText }}</div>
+                <div class="alert alert-info small py-2 px-3 mb-2">
+                  {{ overviewText }}
+                </div>
               </div>
               <div id="personContainer" class="row g-3">
                 <div
@@ -699,9 +876,18 @@ onBeforeUnmount(() => {
                     class="person-card bg-white rounded shadow-sm h-100"
                     role="button"
                     tabindex="0"
-                    :style="{ border: `3px solid ${getCardBorderColor(person)}` }"
+                    :style="{
+                      border: `3px solid ${getCardBorderColor(person)}`,
+                    }"
+                    @click="onSelectPerson(person)"
+                    @keydown.enter.prevent="onSelectPerson(person)"
+                    @keydown.space.prevent="onSelectPerson(person)"
                   >
-                    <div :class="isAllMode ? 'd-flex flex-column' : 'position-relative'">
+                    <div
+                      :class="
+                        isAllMode ? 'd-flex flex-column' : 'position-relative'
+                      "
+                    >
                       <div
                         v-if="!isAllMode"
                         class="position-absolute top-0 end-0 text-white small px-2 py-1 rounded-start"
@@ -712,7 +898,12 @@ onBeforeUnmount(() => {
 
                       <div v-if="!isAllMode" class="face-container mb-2">
                         <svg class="w-100" height="130" viewBox="0 0 100 100">
-                          <circle cx="50" cy="50" r="30" :fill="getFaceFill(person)" />
+                          <circle
+                            cx="50"
+                            cy="50"
+                            r="30"
+                            :fill="getFaceFill(person)"
+                          />
                           <circle cx="40" cy="45" r="5" fill="#4B5563" />
                           <circle cx="60" cy="45" r="5" fill="#4B5563" />
                           <path
@@ -737,108 +928,33 @@ onBeforeUnmount(() => {
                         >
                           <div class="d-flex align-items-center">
                             <span
-                              style="width:12px; height:12px; display:inline-block; border-radius:50%; margin-right:6px"
+                              style="
+                                width: 12px;
+                                height: 12px;
+                                display: inline-block;
+                                border-radius: 50%;
+                                margin-right: 6px;
+                              "
                               :style="{ background: style.border }"
                             />
-                            <span class="small text-dark">{{ riskLabelMap[key] }}</span>
+                            <span class="small text-dark">{{
+                              riskLabelMap[key]
+                            }}</span>
                           </div>
-                          <span class="small fw-semibold text-dark">{{ riskFilterCounts[key] }}</span>
+                          <span class="small fw-semibold text-dark">{{
+                            riskFilterCounts[key]
+                          }}</span>
                         </div>
                       </div>
                     </div>
 
                     <div class="p-2 text-center">
-                      <h4 class="fw-semibold text-dark mb-1 masked-name">{{ person.Name }}</h4>
-                      <p class="small text-muted mb-0">{{ person.Age }} 歲 | {{ genderText(person.Gender) }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </template>
-          </div>
-
-          <div v-show="sortMode === 'level'" class="level" id="levelContainer">
-            <div class="d-none d-md-flex gap-2 mb-3 levelFilterBtnsDesktop">
-              <button
-                v-for="item in levelFilters"
-                :key="item.value"
-                type="button"
-                class="btn flex-fill"
-                :class="[item.btnClass, { active: levelFilter === item.value }, { 'text-white': item.value !== 'all' }]"
-                @click="setFilter(item.value)"
-              >
-                {{ filterButtonLabel(item) }}
-              </button>
-            </div>
-
-            <div v-if="!filteredParticipants.length" class="col-12">
-              <div class="alert alert-secondary text-center">沒有符合條件的參與者</div>
-            </div>
-            <template v-else>
-              <div class="col-12 mb-2">
-                <div class="alert alert-info small py-2 px-3 mb-2">{{ overviewText }}</div>
-              </div>
-              <div id="levelPersonContainer" class="row g-3">
-                <div
-                  v-for="person in filteredParticipants"
-                  :key="`level-${person.Number}`"
-                  class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3"
-                >
-                  <div
-                    class="person-card bg-white rounded shadow-sm h-100"
-                    role="button"
-                    tabindex="0"
-                    :style="{ border: `3px solid ${getCardBorderColor(person)}` }"
-                  >
-                    <div :class="isAllMode ? 'd-flex flex-column' : 'position-relative'">
-                      <div
-                        v-if="!isAllMode"
-                        class="position-absolute top-0 end-0 text-white small px-2 py-1 rounded-start"
-                        :style="{ backgroundColor: getCardBorderColor(person) }"
-                      >
-                        {{ getBadgeLabel(person) }}
-                      </div>
-
-                      <div v-if="!isAllMode" class="face-container mb-2">
-                        <svg class="w-100" height="130" viewBox="0 0 100 100">
-                          <circle cx="50" cy="50" r="30" :fill="getFaceFill(person)" />
-                          <circle cx="40" cy="45" r="5" fill="#4B5563" />
-                          <circle cx="60" cy="45" r="5" fill="#4B5563" />
-                          <path
-                            :d="getMouthPath(person)"
-                            fill="none"
-                            stroke="#4B5563"
-                            stroke-width="3"
-                            stroke-linecap="round"
-                          />
-                        </svg>
-                      </div>
-
-                      <div
-                        v-if="isAllMode"
-                        class="px-2 py-2 mb-2"
-                        style="background: #f8f9fa; border-radius: 6px"
-                      >
-                        <div
-                          v-for="(style, key) in levelStyles"
-                          :key="key"
-                          class="d-flex justify-content-between align-items-center mb-1"
-                        >
-                          <div class="d-flex align-items-center">
-                            <span
-                              style="width:12px; height:12px; display:inline-block; border-radius:50%; margin-right:6px"
-                              :style="{ background: style.border }"
-                            />
-                            <span class="small text-dark">{{ style.label }}</span>
-                          </div>
-                          <span class="small fw-semibold text-dark">{{ levelFilterCounts[key] }}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="p-2 text-center">
-                      <h4 class="fw-semibold text-dark mb-1 masked-name">{{ person.Name }}</h4>
-                      <p class="small text-muted mb-0">{{ person.Age }} 歲 | {{ genderText(person.Gender) }}</p>
+                      <h4 class="fw-semibold text-dark mb-1 masked-name">
+                        {{ person.Name }}
+                      </h4>
+                      <p class="small text-muted mb-0">
+                        {{ person.Age }} 歲 | {{ genderText(person.Gender) }}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -847,8 +963,48 @@ onBeforeUnmount(() => {
           </div>
         </section>
 
+        <!-- 檢測據點分布 -->
+        <section
+          v-if="!isKioskView"
+          id="location"
+          class="mb-4 bg-white p-4 rounded shadow compare-hide"
+        >
+          <h5 class="fw-bold text-dark mb-3 d-flex align-items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="me-2 text-primary"
+              width="24"
+              height="24"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            <span>檢測據點分布</span>
+          </h5>
+
+          <div
+            class="d-flex align-items-center justify-content-center text-muted bg-light rounded"
+            style="height: 300px"
+          >
+            地圖佔位 (Demo)
+          </div>
+        </section>
+
         <!-- ⑤ 一體機公告編輯 -->
-        <section id="kiosk" class="mb-4">
+        <section v-if="isKioskView" id="kiosk" class="mb-4">
           <div
             style="
               background: #fff;
@@ -865,15 +1021,23 @@ onBeforeUnmount(() => {
                 <i class="bi bi-display" style="font-size: 1.25rem" />
                 <span class="fw-bold">一體機公告編輯</span>
               </div>
-              <span class="small" style="color: #cbd5e1">編輯後按確認，將顯示於裝置畫面</span>
+              <span class="small" style="color: #cbd5e1"
+                >編輯後按確認，將顯示於裝置畫面</span
+              >
             </div>
 
             <div style="padding: 24px">
               <div class="row g-4 mb-4">
                 <div class="col-12 col-md-6">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <label for="announcementTitle" class="small text-muted mb-0">公告標題</label>
-                    <span class="small text-muted">{{ announcementTitle.length }} / 50</span>
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                  >
+                    <label for="announcementTitle" class="small text-muted mb-0"
+                      >公告標題</label
+                    >
+                    <span class="small text-muted"
+                      >{{ announcementTitle.length }} / 50</span
+                    >
                   </div>
                   <input
                     id="announcementTitle"
@@ -893,9 +1057,17 @@ onBeforeUnmount(() => {
                 </div>
 
                 <div class="col-12 col-md-6">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <label for="announcementContent" class="small text-muted mb-0">公告內容</label>
-                    <span class="small text-muted">{{ announcementContent.length }} / 50</span>
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                  >
+                    <label
+                      for="announcementContent"
+                      class="small text-muted mb-0"
+                      >公告內容</label
+                    >
+                    <span class="small text-muted"
+                      >{{ announcementContent.length }} / 50</span
+                    >
                   </div>
                   <input
                     id="announcementContent"
@@ -918,7 +1090,13 @@ onBeforeUnmount(() => {
               <button
                 type="button"
                 class="btn d-inline-flex align-items-center gap-2"
-                style="background: #334155; color: #fff; border: none; border-radius: 10px; padding: 10px 20px"
+                style="
+                  background: #334155;
+                  color: #fff;
+                  border: none;
+                  border-radius: 10px;
+                  padding: 10px 20px;
+                "
                 @click="onSaveAnnouncement"
               >
                 <i class="bi bi-send" />
@@ -948,66 +1126,64 @@ onBeforeUnmount(() => {
 
                 <div
                   style="
-                    border: 2px solid #cbd5e1;
-                    border-radius: 14px;
-                    overflow: hidden;
-                    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-                    background: #f1f5f9;
-                    max-width: 480px;
+                    background: #fff;
+                    border: 1px solid #cbd5e1;
+                    padding: 28px 30px;
+                    
                   "
                 >
-                  <div
-                    style="
-                      background: #1e293b;
-                      padding: 8px 16px;
-                      display: flex;
-                      align-items: center;
-                      gap: 8px;
-                    "
-                  >
-                    <i class="bi bi-display" style="color: #94a3b8; font-size: 0.8rem;" />
-                    <span style="color: #94a3b8; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.05em;">
-                      一體機
-                    </span>
+                  <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 18px;">
+                    <div
+                      style="
+                        width: 42px;
+                        height: 42px;
+                        background: #3b82f6;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                      "
+                    >
+                      <i class="bi bi-megaphone-fill" style="font-size: 1.1rem; color: #fff;" />
+                    </div>
+                    <div>
+                      <span
+                        style="
+                          display: block;
+                          font-size: 0.7rem;
+                          font-weight: 900;
+                          letter-spacing: 2px;
+                          color: #3b82f6;
+                          margin-bottom: 3px;
+                        "
+                      >
+                        最新消息
+                      </span>
+                      <h3
+                        style="
+                          font-size: 1.1rem;
+                          font-weight: 900;
+                          color: #1e293b;
+                          margin: 0;
+                          line-height: 1.4;
+                        "
+                      >
+                        {{ announcementTitle || "（標題將顯示於此）" }}
+                      </h3>
+                    </div>
                   </div>
-
-                  <div
-                    style="
-                      background: #0f172a;
-                      padding: 24px 28px;
-                      min-height: 100px;
-                    "
-                  >
-                    <div
-                      :style="announcementTitle ? {
-                        fontSize: '1.1rem',
-                        fontWeight: '700',
-                        color: '#f1f5f9',
-                        marginBottom: '8px',
-                        lineHeight: '1.4',
-                      } : {
-                        fontSize: '1.1rem',
-                        fontWeight: '700',
-                        color: '#334155',
-                        marginBottom: '8px',
-                        lineHeight: '1.4',
-                      }"
+                  <div style="height: 1px; background: #cbd5e1; margin-bottom: 18px;" />
+                  <div>
+                    <p
+                      style="
+                        font-size: 0.95rem;
+                        color: #64748b;
+                        line-height: 1.8;
+                        margin: 0;
+                      "
                     >
-                      {{ announcementTitle || '（標題將顯示於此）' }}
-                    </div>
-                    <div
-                      :style="announcementContent ? {
-                        fontSize: '0.9rem',
-                        color: '#94a3b8',
-                        lineHeight: '1.7',
-                      } : {
-                        fontSize: '0.9rem',
-                        color: '#334155',
-                        lineHeight: '1.7',
-                      }"
-                    >
-                      {{ announcementContent || '（內容將顯示於此）' }}
-                    </div>
+                      {{ announcementContent || "（內容將顯示於此）" }}
+                    </p>
                   </div>
                 </div>
               </div>

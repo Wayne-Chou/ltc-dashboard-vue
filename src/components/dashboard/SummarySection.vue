@@ -1,14 +1,87 @@
 <script setup>
 import { useDashboardDataInject } from '@/composables/useDashboardData'
+import flatpickr from 'flatpickr'
+import { Japanese } from 'flatpickr/dist/l10n/ja.js'
+import { MandarinTraditional } from 'flatpickr/dist/l10n/zh-tw.js'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n()
+import 'flatpickr/dist/flatpickr.min.css'
+
+const { t, locale } = useI18n()
 const {
   summary,
   showLocationSiteCard,
   showSummaryDateSubtitles,
   isOverviewMode,
+  setDateRange,
+  clearDateFilter,
 } = useDashboardDataInject()
+
+const dateRangeInputRef = ref(null)
+let flatpickrInstance = null
+
+function getFlatpickrLocale(lang) {
+  const l = (lang || 'zh').toLowerCase()
+  if (l.includes('zh')) return MandarinTraditional
+  if (l.includes('ja')) return Japanese
+  return undefined
+}
+
+function destroyFlatpickr() {
+  if (flatpickrInstance) {
+    flatpickrInstance.destroy()
+    flatpickrInstance = null
+  }
+}
+
+function initFlatpickr() {
+  if (!dateRangeInputRef.value || isOverviewMode.value) return
+  destroyFlatpickr()
+
+  flatpickrInstance = flatpickr(dateRangeInputRef.value, {
+    mode: 'range',
+    dateFormat: 'Y-m-d',
+    locale: getFlatpickrLocale(locale.value),
+    onChange(selectedDates) {
+      if (selectedDates.length === 2) {
+        setDateRange(selectedDates[0], selectedDates[1])
+      }
+    },
+  })
+}
+
+function onClearDateFilter() {
+  clearDateFilter()
+  if (flatpickrInstance) {
+    flatpickrInstance.clear()
+  }
+}
+
+onMounted(() => {
+  void nextTick(() => initFlatpickr())
+})
+
+watch(isOverviewMode, (overview) => {
+  if (overview) {
+    destroyFlatpickr()
+  } else {
+    void nextTick(() => initFlatpickr())
+  }
+})
+
+watch(
+  () => locale.value,
+  () => {
+    if (flatpickrInstance) {
+      flatpickrInstance.set('locale', getFlatpickrLocale(locale.value))
+    }
+  },
+)
+
+onBeforeUnmount(() => {
+  destroyFlatpickr()
+})
 </script>
 
 <template>
@@ -32,6 +105,24 @@ const {
       </svg>
       <span>{{ t('dashboard.summary') }}</span>
     </h5>
+
+    <div v-if="!isOverviewMode" class="my-3 hide-on-all">
+      <div class="input-group">
+        <input
+          ref="dateRangeInputRef"
+          type="text"
+          class="form-control"
+          :placeholder="t('dashboard.selectDateRange')"
+        />
+        <button
+          class="btn btn-outline-secondary"
+          type="button"
+          @click="onClearDateFilter"
+        >
+          {{ t('dashboard.clear') }}
+        </button>
+      </div>
+    </div>
 
     <div class="row g-4">
       <div class="col-md-4" :class="isOverviewMode ? 'main-col' : 'main-col col-md-6'">

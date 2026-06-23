@@ -27,6 +27,11 @@ const routes = [
     component: () => import('@/views/WalkingDashboardView.vue'),
   },
   {
+    path: '/walking-demo/person/:id',
+    name: 'walking-person-detail',
+    component: () => import('@/views/WalkingPersonDetailView.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/',
   },

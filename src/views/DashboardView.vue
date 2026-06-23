@@ -45,7 +45,12 @@ function onSelectPerson(person) {
 </script>
 
 <template>
-  <DashboardLayout :sites="sites" @select-region="selectRegion">
+  <DashboardLayout
+    :sites="sites"
+    :show-region-sections="showRegionSections"
+    :error="error"
+    @select-region="selectRegion"
+  >
     <div id="appView" class="app-view">
       <div v-if="error" class="alert alert-danger" role="alert">
         {{ error.message || String(error) }}

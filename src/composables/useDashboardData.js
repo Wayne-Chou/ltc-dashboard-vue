@@ -28,6 +28,7 @@ export function useDashboardData() {
 
   const sites = ref([])
   const assessments = ref([])
+  const dateRange = ref(null) 
   const selectedIndices = ref([])
   const error = ref(null)
   const locationMap = ref({})
@@ -46,8 +47,20 @@ export function useDashboardData() {
 
   const showLocationSiteCard = computed(() => isOverviewMode.value)
 
+  const dateFilteredAssessments = computed(() => {
+    if (!dateRange.value) return assessments.value
+    const { start, end } = dateRange.value
+    return assessments.value.filter((item) => {
+      if (!item?.Date) return false
+      const itemDate = new Date(item.Date)
+      return itemDate >= start && itemDate <= end
+    })
+  })
+
   const selectedAssessments = computed(() =>
-    assessments.value.filter((_, index) => selectedIndices.value.includes(index)),
+    dateFilteredAssessments.value.filter((_, index) =>
+      selectedIndices.value.includes(index),
+    ),
   )
 
   const overviewSummary = computed(() =>
@@ -78,6 +91,9 @@ export function useDashboardData() {
     if (!assessments.value.length) {
       return true
     }
+    if (dateRange.value && dateFilteredAssessments.value.length === 0) {
+      return true
+    }
     return selectedAssessments.value.length === 0
   })
 
@@ -86,6 +102,7 @@ export function useDashboardData() {
   function applyAssessments(data) {
     const list = Array.isArray(data) ? data : []
     assessments.value = list
+    dateRange.value = null
 
     if (list.length > 0) {
       selectedIndices.value = list.map((_, index) => index)
@@ -106,11 +123,21 @@ export function useDashboardData() {
   }
 
   function selectAllAssessments() {
-    setSelectedIndices(assessments.value.map((_, index) => index))
+    setSelectedIndices(dateFilteredAssessments.value.map((_, index) => index))
   }
 
   function unselectAllAssessments() {
     setSelectedIndices([])
+  }
+
+  function setDateRange(start, end) {
+    dateRange.value = { start, end }
+    selectAllAssessments()
+  }
+
+  function clearDateFilter() {
+    dateRange.value = null
+    selectAllAssessments()
   }
 
   function buildMapsFromSites(siteList) {
@@ -207,6 +234,8 @@ export function useDashboardData() {
   return {
     sites,
     assessments,
+    dateRange,
+    dateFilteredAssessments,
     selectedIndices,
     selectedAssessments,
     error,
@@ -226,6 +255,8 @@ export function useDashboardData() {
     toggleSelection,
     selectAllAssessments,
     unselectAllAssessments,
+    setDateRange,
+    clearDateFilter,
     selectRegion,
     initLocationPage,
     reloadRegionData,

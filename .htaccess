@@ -1,0 +1,14 @@
+DirectoryIndex page.php
+RewriteEngine On
+RewriteBase /ltc-dashboard-vue/
+
+# index.html 強制改走 page.php(不要直接給靜態檔)
+RewriteRule ^index\.html$ page.php [L]
+
+# 其他實體存在的檔案/資料夾(assets 那些)直接給
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 其餘全部交給 page.php
+RewriteRule ^ page.php [L]

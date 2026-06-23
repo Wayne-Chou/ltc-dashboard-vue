@@ -4,7 +4,7 @@ import { useDashboardModalsInject } from '@/composables/useDashboardModals'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-const { riskStats, hasNoData } = useDashboardDataInject()
+const { riskStats } = useDashboardDataInject()
 const { openDetailsModal } = useDashboardModalsInject()
 </script>
 
@@ -30,12 +30,7 @@ const { openDetailsModal } = useDashboardModalsInject()
       <span>{{ t('dashboard.riskStats') }}</span>
     </h5>
 
-    <div v-if="hasNoData" class="alert alert-secondary text-center">
-      {{ t('dashboard.noRecord') }}
-    </div>
-
-    <template v-else>
-      <div class="alert-box mb-4 p-3 hide-on-all">
+    <div class="alert-box mb-4 p-3 hide-on-all">
         <div class="d-flex align-items-center mb-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -227,7 +222,6 @@ const { openDetailsModal } = useDashboardModalsInject()
           </div>
         </div>
       </div>
-    </template>
 
   </div>
 </template>

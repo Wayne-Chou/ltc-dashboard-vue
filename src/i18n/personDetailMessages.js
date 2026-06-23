@@ -185,4 +185,3 @@ export const personDetailMessages = {
 }
 
 personDetailMessages.ja = { ...personDetailMessages.zh, back: '戻る', alertNoData: 'データなし' }
-personDetailMessages.ko = { ...personDetailMessages.zh, back: '이전으로', alertNoData: '데이터 없음' }
