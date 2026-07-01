@@ -3,7 +3,7 @@ import { request } from './client'
 export function getPersonTimeRange() {
   return {
     startTime: new Date('2024-01-01').getTime(),
-    endTime: new Date('2026-12-31').getTime(),
+    endTime: Date.now(),
   }
 }
 

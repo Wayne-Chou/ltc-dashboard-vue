@@ -1,5 +1,6 @@
 <script setup>
 import { useCompareModeInject } from '@/composables/useCompareMode'
+import { isCompareModeEnabled } from '@/utils/featureFlags'
 import { useAppStore } from '@/stores/app'
 import { logoutApi } from '@/api/auth'
 import { useAuthStore } from '@/stores/auth'
@@ -135,7 +136,11 @@ async function onLogout() {
         </button>
       </div>
 
-      <div class="compareBtn" :class="{ active: compare.compareBtnActive }">
+      <div
+        v-if="isCompareModeEnabled"
+        class="compareBtn"
+        :class="{ active: compare.compareBtnActive }"
+      >
         <button
           id="compareBtn"
           type="button"
