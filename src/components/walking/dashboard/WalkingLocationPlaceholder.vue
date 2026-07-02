@@ -1,7 +1,7 @@
 <template>
   <section
     id="location"
-    class="mb-4 bg-white p-4 rounded shadow compare-hide"
+    class="mb-4 bg-white p-4 rounded shadow"
   >
     <h5 class="fw-bold text-dark mb-3 d-flex align-items-center">
       <svg

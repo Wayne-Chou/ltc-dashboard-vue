@@ -24,7 +24,7 @@ function isAssessmentSelected(index, selectedIndices) {
 </script>
 
 <template>
-  <section id="history" class="mt-4 hide-on-all">
+  <section id="history" class="mt-4">
     <h6 class="fw-semibold text-secondary mb-3">歷次檢測</h6>
 
     <div class="d-flex gap-2 mb-3">

@@ -104,7 +104,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section id="trend" class="mb-8 hide-on-all compare-hide">
+  <section id="trend" class="mb-8">
     <h5 class="fw-bold mb-3 d-flex align-items-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"

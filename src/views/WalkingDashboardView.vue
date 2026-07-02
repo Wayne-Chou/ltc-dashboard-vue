@@ -8,7 +8,8 @@ import WalkingSidebar from '@/components/walking/dashboard/WalkingSidebar.vue'
 import WalkingSummarySection from '@/components/walking/dashboard/WalkingSummarySection.vue'
 import WalkingTrendChartsSection from '@/components/walking/dashboard/WalkingTrendChartsSection.vue'
 import '@/styles/dashboard.css'
-import 'bootstrap-icons/font/bootstrap-icons.css'
+
+
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 

@@ -1,4 +1,6 @@
 <script setup>
+import 'bootstrap-icons/font/bootstrap-icons.css'
+import '@/styles/chartOverlay.css'
 import PersonDetailChartCard from '@/components/person/PersonDetailChartCard.vue'
 import PersonRecordList from '@/components/person/PersonRecordList.vue'
 import PersonReportHeadline from '@/components/person/PersonReportHeadline.vue'

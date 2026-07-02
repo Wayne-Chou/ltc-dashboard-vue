@@ -46,7 +46,7 @@ const activeFilter = computed(() =>
 <template>
   <section
     id="status"
-    class="mb-4 mt-3 hide-on-all compare-hide"
+    class="mb-4 mt-3"
   >
     <h5 class="fw-bold text-dark mb-3 d-flex align-items-center">
       <svg

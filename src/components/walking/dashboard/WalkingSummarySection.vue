@@ -18,7 +18,7 @@ defineProps({
 <template>
   <section
     id="summary"
-    class="mt-4 mb-4 bg-white p-4 rounded shadow compare-hide"
+    class="mt-4 mb-4 bg-white p-4 rounded shadow"
   >
     <h5 class="fw-bold text-dark mb-3 d-flex align-items-center">
       <svg
@@ -40,7 +40,7 @@ defineProps({
       <span>檢測統計摘要</span>
     </h5>
 
-    <div v-if="showRegionSections" class="my-3 hide-on-all">
+    <div v-if="showRegionSections" class="my-3">
       <div class="input-group">
         <input
           type="text"

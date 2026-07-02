@@ -165,7 +165,7 @@ function openLevelViewAll() {
 </script>
 
 <template>
-  <div class="mb-4 hide-on-all compare-hide">
+  <div class="mb-4">
     <h5 id="status" class="fw-bold text-dark mb-3 d-flex align-items-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"

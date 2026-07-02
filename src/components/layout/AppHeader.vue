@@ -131,7 +131,7 @@ async function onLogout() {
           </ul>
         </div>
 
-        <button id="logoutBtn" class="btn btn-primary mt-2 mb-2" type="button" @click="onLogout">
+        <button id="logoutBtn" class="btn btn-primary  mb-2" type="button" @click="onLogout">
           {{ t('dashboard.logout') }}
         </button>
       </div>

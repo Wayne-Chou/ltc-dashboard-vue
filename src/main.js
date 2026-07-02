@@ -16,8 +16,8 @@ import '@fortawesome/fontawesome-free/css/all.min.css'
 import '@/styles/main.css'
 import '@/styles/globalLoading.css'
 import '@/styles/cookieConsent.css'
-import '@/styles/personDetail.css'
 
+import '@/styles/personDetail.css'
 const app = createApp(App)
 
 const pinia = createPinia()

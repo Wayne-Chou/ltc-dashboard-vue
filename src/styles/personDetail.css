@@ -16,9 +16,6 @@
   --radius-md: 14px;
   --shadow-soft: 0 10px 30px rgba(17, 24, 39, 0.06);
 }
-.hidden-by-filter {
-  display: none !important;
-}
 body.app {
   background:
     radial-gradient(
@@ -366,10 +363,6 @@ body.app {
   gap: 12px;
 }
 
-.chart-title {
-  font-weight: 900;
-}
-
 .chart-sub {
   font-size: 0.8rem;
   color: var(--text-sub);
@@ -433,12 +426,6 @@ body.app {
   border: 1.5px solid var(--border);
 }
 
-.record-item:hover {
-  background: #f5f9ff;
-  border-color: rgba(37, 99, 235, 0.45);
-  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.15);
-}
-
 .record-item::before {
   content: "";
   position: absolute;
@@ -449,12 +436,6 @@ body.app {
   border-radius: 4px;
   background: #e5e7eb;
   transition: background 0.2s ease;
-}
-
-.record-item:has(input:checked) {
-  background: linear-gradient(180deg, #eef4ff, #ffffff);
-  border-color: var(--info);
-  box-shadow: 0 10px 26px rgba(37, 99, 235, 0.22);
 }
 
 .record-item:has(input:checked)::before {
@@ -672,10 +653,16 @@ body.app {
 }
 
 .record-item:hover {
+  background: #f5f9ff;
+  border-color: rgba(37, 99, 235, 0.45);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.15);
   transform: translateY(-2px);
 }
 
 .record-item:has(input:checked) {
+  background: linear-gradient(180deg, #eef4ff, #ffffff);
+  border-color: var(--info);
+  box-shadow: 0 10px 26px rgba(37, 99, 235, 0.22);
   transform: translateY(-3px);
 }
 
@@ -738,6 +725,7 @@ body.app {
 
 /* ---------- 圖表標題強化 ---------- */
 .chart-title {
+  font-weight: 900;
   font-size: 0.95rem;
   letter-spacing: 0.02em;
 }

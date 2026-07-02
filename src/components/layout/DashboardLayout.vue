@@ -2,6 +2,8 @@
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import '@/styles/dashboard.css'
+import '@/styles/chartOverlay.css'
+import '@/styles/dashboard-compare.css'
 
 defineProps({
   sites: {

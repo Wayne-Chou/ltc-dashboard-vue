@@ -89,7 +89,7 @@ function toggleSidebar() {
 
       <nav
         v-if="compare.showHideOnAllNav && showRegionSections && !error"
-        class="navbar navbar-expand-lg bg-white shadow-sm sticky-top border-bottom hide-on-all"
+        class="navbar navbar-expand-lg bg-white shadow-sm sticky-top border-bottom"
       >
         <div class="container-fluid">
           <button

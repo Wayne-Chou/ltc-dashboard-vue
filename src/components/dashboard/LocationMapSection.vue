@@ -37,7 +37,7 @@ const { loadError } = useGoogleMap({
 </script>
 
 <template>
-  <section class="mb-4 compare-hide">
+  <section class="mb-4">
     <h5
       id="location"
       class="fw-bold text-dark mb-3 d-flex align-items-center"

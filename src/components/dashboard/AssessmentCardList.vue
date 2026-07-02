@@ -71,7 +71,7 @@ function goToNextPage() {
 </script>
 
 <template>
-  <div class="mt-4 hide-on-all">
+  <div class="mt-4 mb-4">
     <h6 class="fw-semibold text-secondary mb-3">
       {{ t('dashboard.historyAverageTable') }}
     </h6>

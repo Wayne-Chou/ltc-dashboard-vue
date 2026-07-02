@@ -85,7 +85,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="mt-4 mb-4 bg-white p-4 rounded shadow compare-hide">
+  <div class="mt-4 mb-4 bg-white p-4 rounded shadow">
     <h5 id="summary" class="fw-bold text-dark mb-3 d-flex align-items-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -106,7 +106,7 @@ onBeforeUnmount(() => {
       <span>{{ t('dashboard.summary') }}</span>
     </h5>
 
-    <div v-if="!isOverviewMode" class="my-3 hide-on-all">
+    <div v-if="!isOverviewMode" class="my-3">
       <div class="input-group">
         <input
           ref="dateRangeInputRef"

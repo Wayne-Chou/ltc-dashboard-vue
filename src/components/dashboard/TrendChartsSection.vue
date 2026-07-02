@@ -36,7 +36,7 @@ const charts = [
 </script>
 
 <template>
-  <div class="mb-8 hide-on-all compare-hide">
+  <div class="mb-8">
     <h5 id="trend" class="fw-bold mb-3 d-flex align-items-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"

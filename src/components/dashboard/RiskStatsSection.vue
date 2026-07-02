@@ -9,7 +9,7 @@ const { openDetailsModal } = useDashboardModalsInject()
 </script>
 
 <template>
-  <div class="mb-4 hide-on-all compare-hide">
+  <div class="mb-4">
     <h5 id="risk" class="fw-bold text-dark mb-3 d-flex align-items-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -30,7 +30,7 @@ const { openDetailsModal } = useDashboardModalsInject()
       <span>{{ t('dashboard.riskStats') }}</span>
     </h5>
 
-    <div class="alert-box mb-4 p-3 hide-on-all">
+    <div class="alert-box mb-4 p-3">
         <div class="d-flex align-items-center mb-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
