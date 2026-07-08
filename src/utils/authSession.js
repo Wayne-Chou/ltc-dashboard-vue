@@ -1,19 +1,11 @@
 import { SessionExpiredError } from '@/api/errors'
+import { buildApiUrl } from '@/api/url'
 
 export const TOKEN_KEY = 'fongai_token'
 
 const LEGACY_STORAGE_KEY = 'ltc_token'
 
 let isRedirecting = false
-
-const DEFAULT_API_BASE_URL = 'https://service.fongai.co/WebAPI/api'
-
-function buildApiUrl(endpoint) {
-  const configured = import.meta.env.VITE_API_BASE_URL?.trim()
-  const base = (configured || DEFAULT_API_BASE_URL).replace(/\/+$/, '')
-  const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
-  return `${base}${path}`
-}
 
 export function getCookie(name) {
   if (typeof document === 'undefined') return null
