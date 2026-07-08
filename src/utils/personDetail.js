@@ -195,6 +195,23 @@ export function formatLocaleDate(value) {
   }
 }
 
+export function formatLocaleDateTime(value) {
+  if (!value) return '--'
+  try {
+    const d = new Date(value)
+    if (Number.isNaN(d.getTime())) return '--'
+
+    const year = d.getFullYear()
+    const month = d.getMonth() + 1
+    const day = d.getDate()
+    const hours = String(d.getHours()).padStart(2, '0')
+    const minutes = String(d.getMinutes()).padStart(2, '0')
+    return `${year}/${month}/${day} ${hours}:${minutes}`
+  } catch {
+    return '--'
+  }
+}
+
 /**
  * @param {Array} selectedDatas
  * @param {Array} compareDatas - latest two records for date display

@@ -293,6 +293,19 @@
     "panelRecordHint": "可勾選兩筆資料來比較趨勢摘要",
     "panelTrendChart": "趨勢分析圖表",
     "panelTrendChartHint": "圖表提供趨勢視覺化，摘要區提供快速判讀",
+    "assistiveDevice": {
+      "title": "輔具使用資訊",
+      "label": "是否使用輔具",
+      "status": {
+        "yes": "是",
+        "no": "否",
+        "unknown": "尚無資料"
+      }
+    },
+    "note": {
+      "title": "備註",
+      "placeholder": "請輸入備註內容"
+    },
     "dates": "日期"
   },
   "common": {

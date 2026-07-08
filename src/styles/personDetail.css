@@ -457,6 +457,8 @@ body.app {
   font-weight: 900;
   font-size: 0.95rem;
   color: var(--text-main);
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
 }
 
 .record-metrics {
@@ -728,6 +730,59 @@ body.app {
   font-weight: 900;
   font-size: 0.95rem;
   letter-spacing: 0.02em;
+}
+
+.assistive-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffffff, var(--panel-soft));
+}
+
+.assistive-label {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.assistive-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  border: 1px solid transparent;
+}
+
+.assistive-status.yes {
+  color: #166534;
+  background: #dcfce7;
+  border-color: rgba(22, 101, 52, 0.2);
+}
+
+.assistive-status.no {
+  color: #7c2d12;
+  background: #ffedd5;
+  border-color: rgba(124, 45, 18, 0.2);
+}
+
+.assistive-status.unknown {
+  color: #374151;
+  background: #f3f4f6;
+  border-color: rgba(55, 65, 81, 0.2);
+}
+
+.person-note-panel .panel-body {
+  padding-top: 8px;
+}
+
+.person-note-textarea {
+  min-height: 120px;
+  resize: vertical;
 }
 
 @media (max-width: 768px) {
