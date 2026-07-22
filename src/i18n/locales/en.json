@@ -292,7 +292,20 @@
     "panelRecordList": "Assessment Records",
     "panelRecordHint": "Select two records to compare trend changes",
     "panelTrendChart": "Trend Analysis Charts",
-    "panelTrendChartHint": "Charts visualize trends, while the summary provides quick clinical insights."
+    "panelTrendChartHint": "Charts visualize trends, while the summary provides quick clinical insights.",
+    "assistiveDevice": {
+      "title": "Assistive Device Information",
+      "label": "Using assistive device",
+      "status": {
+        "yes": "Yes",
+        "no": "No",
+        "unknown": "No data yet"
+      }
+    },
+    "note": {
+      "title": "Note",
+      "placeholder": "Enter notes here (currently stored in frontend state only)"
+    }
   },
   "common": {
     "loading": "Loading…",

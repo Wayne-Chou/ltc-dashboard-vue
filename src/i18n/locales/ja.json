@@ -299,6 +299,19 @@
     "panelRecordHint": "2件の記録を選択して変化の傾向を比較できます",
     "panelTrendChart": "傾向分析グラフ",
     "panelTrendChartHint": "グラフで傾向を可視化し、要約で迅速な判断を支援します。",
+    "assistiveDevice": {
+      "title": "補助具の利用情報",
+      "label": "補助具を使用しているか",
+      "status": {
+        "yes": "はい",
+        "no": "いいえ",
+        "unknown": "データ未提供"
+      }
+    },
+    "note": {
+      "title": "備考",
+      "placeholder": "備考を入力してください（現時点ではフロントエンドのみで保持）"
+    },
     "dates": "日付"
   },
   "common": {

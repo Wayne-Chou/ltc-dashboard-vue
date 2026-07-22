@@ -1,6 +1,6 @@
 <script setup>
 import { usePersonFlatpickr } from '@/composables/usePersonFlatpickr'
-import { formatLocaleDate, getRiskColor, getRiskLabelKey } from '@/utils/personDetail'
+import { formatLocaleDateTime, getRiskColor, getRiskLabelKey } from '@/utils/personDetail'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -107,7 +107,7 @@ defineExpose({ clearFlatpickr })
               @change="emit('toggle', index, $event.target.checked)"
             />
             <div class="record-content w-100">
-              <div class="record-date">{{ formatLocaleDate(record.Date) }}</div>
+              <div class="record-date">{{ formatLocaleDateTime(record.Date) }}</div>
               <div class="record-metrics">
                 <span>{{ t('personDetail.sitStand') }} <b>{{ formatSitStand(record) }}</b></span>
                 <span>{{ t('personDetail.gaitSpeed') }} <b>{{ formatGait(record) }}</b></span>

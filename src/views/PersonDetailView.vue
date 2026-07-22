@@ -1,7 +1,9 @@
 <script setup>
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import '@/styles/chartOverlay.css'
+import PersonAssistiveInfo from '@/components/person/PersonAssistiveInfo.vue'
 import PersonDetailChartCard from '@/components/person/PersonDetailChartCard.vue'
+import PersonNote from '@/components/person/PersonNote.vue'
 import PersonRecordList from '@/components/person/PersonRecordList.vue'
 import PersonReportHeadline from '@/components/person/PersonReportHeadline.vue'
 import PersonTrendSummary from '@/components/person/PersonTrendSummary.vue'
@@ -154,6 +156,9 @@ onUnmounted(() => {
           :clinical-status="headlineClinicalStatus"
         />
 
+        
+        <PersonAssistiveInfo :assistive-device="null" />
+
         <section class="panel">
           <div class="panel-header">
             <div>
@@ -214,6 +219,8 @@ onUnmounted(() => {
             </section>
           </div>
         </div>
+
+        <PersonNote />
       </main>
     </template>
   </div>

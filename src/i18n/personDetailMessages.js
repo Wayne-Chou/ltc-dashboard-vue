@@ -87,6 +87,17 @@ export const personDetailMessages = {
     panelRecordList: '評估紀錄明細',
     panelRecordHint: '可勾選兩筆資料來比較趨勢摘要',
     panelTrendChart: '趨勢分析圖表',
+    assistiveDevice: {
+      title: '輔具使用資訊',
+      label: '是否使用輔具',
+      status: { yes: '是', no: '否', unknown: '尚無資料' },
+    },
+    note: {
+      title: '備註',
+      placeholder: '請輸入備註內容',
+      save: '儲存',
+      saved: '已儲存',
+    },
     notFound: '找不到相關資料',
     loadFailed: '載入失敗',
   },
@@ -179,9 +190,35 @@ export const personDetailMessages = {
     panelRecordList: 'Assessment Records',
     panelRecordHint: 'Select two records to compare trend changes',
     panelTrendChart: 'Trend Analysis Charts',
+    assistiveDevice: {
+      title: 'Assistive Device Information',
+      label: 'Using assistive device',
+      status: { yes: 'Yes', no: 'No', unknown: 'No data yet' },
+    },
+    note: {
+      title: 'Note',
+      placeholder: 'Enter notes here (currently stored in frontend state only)',
+      save: 'Save',
+      saved: 'Saved',
+    },
     notFound: 'No matching records found',
     loadFailed: 'Failed to load',
   },
 }
 
-personDetailMessages.ja = { ...personDetailMessages.zh, back: '戻る', alertNoData: 'データなし' }
+personDetailMessages.ja = {
+  ...personDetailMessages.zh,
+  back: '戻る',
+  alertNoData: 'データなし',
+  assistiveDevice: {
+    title: '補助具の利用情報',
+    label: '補助具を使用しているか',
+    status: { yes: 'はい', no: 'いいえ', unknown: 'データ未提供' },
+  },
+  note: {
+    title: '備考',
+    placeholder: '備考を入力してください（現時点ではフロントエンドのみで保持）',
+    save: '保存',
+    saved: '保存しました',
+  },
+}
