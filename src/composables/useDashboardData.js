@@ -18,9 +18,6 @@ import { useRoute, useRouter } from 'vue-router'
 
 export const DASHBOARD_INJECTION_KEY = Symbol('dashboardData')
 
-/**
- * Central dashboard data pipeline (legacy location.js + table.js + riskStats.js).
- */
 export function useDashboardData() {
   const route = useRoute()
   const router = useRouter()
